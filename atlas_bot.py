@@ -104,8 +104,72 @@ def takeInput():
 
     return place
 
+def takeInput():
+    global invalid_count
+
+    try:
+        place = inputimeout(prompt='Your place : ', timeout=10)
+
+    except TimeoutOccurred:
+        #send invalid count message and increase count
+        if invalid_count < 1:
+            print("You have to enter a place withing 10 seconds. If you don't, then your invalid count will increase by 1. If invalid count reaches 3, you lose.")
+        invalid_count = invalid_count+1
+        print("Invalid count : {}".format(invalid_count))
+        
+        #check if invalid count == 3
+        if invalid_count == 3:
+            print('You lost')
+            sys.exit()
+        
+        #else, take input
+        place=takeInput()
+
+    else:
+        place = place.lower()
+
+        #check if input is a whitespace or if it is nothing
+        while place == '':
+            print("Plese enter a place")
+            place = takeInput()
+        while place.isspace():
+            print("Please enter a place.")
+            place = takeInput()
+
+        # check if user wants to quit
+        if place == 'quit' or place == 'pass':
+            print("You lost")
+            sys.exit()
+
+        # check if place is from correct letter
+        if place[0] != ai_place_last:
+            invalid_count += 1
+            print(f'Your place should start from {ai_place_last.upper()}.')
+            print(f'Invalid Place Count = {invalid_count}')
+            print(ai_place)
+
+        #check if place is invalid
+        while place[-1] not in all_letter_string:
+            print('This is not a place. Enter another place.')
+            place = takeInput()
+
+        #check if place is already done
+        while place in done_places:
+            print('This place is done. Enter another place.')
+            place = takeInput()
+
+        # check if place exists in database
+        while place not in globals()[place[0]]:
+            print('This is not a place. Enter another place.')
+            place = takeInput()
+
+    return place
+
 # main code starts here
 if __name__ == "__main__":
+
+    # global invalid_count
+    invalid_count = 0
 
     # greetings
     print("Let's play Atlas...")
@@ -132,6 +196,7 @@ if __name__ == "__main__":
         # take input from user
         ai_place = 'If you enter 3 invalid places you will lose'
         place = takeInput()
+<<<<<<< HEAD
         
         # check if place entered starts from the right letter or not
         if place[0] != ai_place_last:
@@ -168,3 +233,32 @@ if __name__ == "__main__":
                 sys.exit()
 
     # print('Done places -',done_places)
+=======
+
+        if place[0] == ai_place_last:
+            for For in all_letters:
+                if place in For:
+                    For.remove(place)
+
+        # if place entered is correct and all, then run this
+        last = place[-1]
+        done_places.append(place)
+        place_given = False
+        for cur_letter in all_letters:
+            if last == ([i for i, var in locals().items() if var == cur_letter][0]) and cur_letter != []:
+                ai_place = random.choice(cur_letter)
+                cur_letter.remove(ai_place)
+                done_places.append(ai_place)
+                place_given = True
+                if ai_place == 'If you enter 3 invalid places you will lose':
+                    pass
+                else:
+                    print('\nBot\'s Place : '+ai_place.title())
+                    last_ai_place = ai_place
+                    ai_place_last = last_ai_place[-1].lower()
+                    print('Your place should start from '+ai_place_last.upper()+'\n')
+                    done_places.append(ai_place.lower())
+        if place_given == False:
+            print("You Won")
+            sys.exit()
+>>>>>>> master
