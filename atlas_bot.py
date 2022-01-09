@@ -1,6 +1,7 @@
 # imports
 import random
 import json
+import sys
 
 # open json file
 file = open('places.json', 'r')
@@ -141,17 +142,5 @@ if __name__ == "__main__":
 
             if place_given == False:
                 print("You Won")
-                break
-            
-            # if ai_place == 'If you enter 3 invalid places you will lose':
-            #     pass
-            # else:
-            #     print('A.I. Place - ', end='')
-            #     print(ai_place.title())
-            #     last_ai_place = ai_place
-            #     ai_place_last = last_ai_place[-1].lower()
-            #     print('Your place should start from '+ai_place_last.upper()+'\n')
-            #     done_places.append(ai_place.lower())
+                sys.exit()
     print('Done places -',done_places)
-
-# print(([i for i, a in locals().items() if a == letter][0]))
