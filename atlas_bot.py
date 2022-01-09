@@ -1,4 +1,7 @@
+#this is timelimit branch...
+
 # imports
+from inputimeout import inputimeout, TimeoutOccurred
 import random
 import json
 import sys
@@ -41,6 +44,67 @@ z = data["z"]
 all_letters = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z]
 all_letter_string = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 done_places = []
+invalid_count = 0
+
+def takeInput():
+    # place=None
+    try:
+        place = inputimeout(prompt='Your place : ', timeout=10)
+
+    except TimeoutOccurred:
+        global invalid_count
+
+        #send invalid count message and increase count
+        if invalid_count < 1:
+            print("You have to enter a place withing 10 seconds. If you don't, then your invalid count will increase by 1. If invalid count reaches 3, you lose.")
+        invalid_count = invalid_count+1
+        print("Invalid count : {}".format(invalid_count))
+        
+        #check if invalid count == 3
+        if invalid_count == 3:
+            print('You lost')
+            sys.exit()
+        
+        #else, take input
+        place=takeInput()
+
+    else:
+        place = place.lower()
+
+        #check if input is a whitespace or if it is nothing
+        while place == '':
+            print("Plese enter a place")
+            place = takeInput()
+        while place.isspace():
+            print("Please enter a place.")
+            place = takeInput()
+
+        # check if user wants to quit
+        if place == 'quit' or place == 'pass':
+            print("You lost")
+            sys.exit()
+
+        #check if place is invalid
+        while place[-1] not in all_letter_string:
+            print('This is not a place. Enter another place.')
+            place = takeInput()
+
+        #check if place is already done
+        while place in done_places:
+            print('This place is done. Enter another place.')
+            place = takeInput()
+
+        # check if place exists in database
+        while place not in globals()[place[0]]:
+            print('This is not a place. Enter another place.')
+            place = takeInput()
+
+        if place[0] == ai_place_last:
+            for For in all_letters:
+                if place in For:
+                    For.remove(place)
+
+    return place
 
 # main code starts here
 if __name__ == "__main__":
@@ -58,60 +122,22 @@ if __name__ == "__main__":
     print('Your place should start from',ai_place_last.upper()+'\n')
     first_letter.remove(first_ai_place)
 
-    # counters and others
-    invalid_count = 0
     done_places.append(first_ai_place.lower())
-
 
     while True:
 
         # invalid count checker
         if invalid_count == 3:
             print('You lose')
-            break
+            sys.exit()
 
         # take input from user
         ai_place = 'If you enter 3 invalid places you will lose'
-        place = input("Your Place - ")
-        place = place.lower()
-
-        while place == '':
-            print("Please enter a place.")
-            place = input("Your Place - ")
-            place = place.lower()
-
-        # check if user wants to quit
-        if place == 'quit' or place == 'pass':
-            print("You lose")
-            break
-        
-        # check if place is already done
-        while place in done_places:
-            print('This place is done. Enter another place.')
-            place = input('Your Place - ')
-            place = place.lower()
-
-        # check if place entered is valid or not
-        while place[-1] not in all_letter_string:
-            print('This is not a place. Enter another place.')
-            place = input('Your Place - ')
-            place = place.lower()
-
-        # check if place exists in database
-        while place not in locals()[place[0]]:
-            print('This is not a place. Enter another place.')
-            place = input('Your Place - ')
-            place = place.lower()
-
-        if place[0] == ai_place_last:
-            for For in all_letters:
-                if place in For:
-                    For.remove(place)
+        place = takeInput()
         
         # check if place entered starts from the right letter or not
         if place[0] != ai_place_last:
             invalid_count += 1
-            # print('You entered an invalid place.')
             print(f'Your place should start from {ai_place_last.upper()}.')
             print(f'Invalid Place Count = {invalid_count}')
             print(ai_place)
@@ -121,7 +147,6 @@ if __name__ == "__main__":
             last = place[-1]
             done_places.append(place)
             place_given = False
-            # print(([i for i, a in locals().items() if a == letter][0]))
 
             for cur_letter in all_letters:
                 if last == ([i for i, var in locals().items() if var == cur_letter][0]) and cur_letter != []:
@@ -133,8 +158,8 @@ if __name__ == "__main__":
                     if ai_place == 'If you enter 3 invalid places you will lose':
                         pass
                     else:
-                        print('\nBot\'s Place - ', end='')
-                        print(ai_place.title())
+                        print('\nBot\'s Place : '+ai_place.title())
+                        # print(ai_place.title())
                         last_ai_place = ai_place
                         ai_place_last = last_ai_place[-1].lower()
                         print('Your place should start from '+ai_place_last.upper()+'\n')
@@ -143,4 +168,5 @@ if __name__ == "__main__":
             if place_given == False:
                 print("You Won")
                 sys.exit()
-    print('Done places -',done_places)
+
+    # print('Done places -',done_places)
