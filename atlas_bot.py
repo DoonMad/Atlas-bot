@@ -6,83 +6,90 @@ import asyncio
 # from discord.ext import commands
 
 # open json file
-file = open('places.json', 'r')
-data = json.loads(file.read())
-file.close()
+# file = open('places.json', 'r')
+# data = json.loads(file.read())
+# file.close()
 
 # global variables
 client = discord.Client()
 # client = commands.Bot(command_prefix="^", case_insensitive=True)
+count = 0
 
-
-# miscellaneous
-a = data["a"]
-b = data["b"]
-c = data["c"]
-d = data["d"]
-e = data["e"]
-f = data["f"]
-g = data["g"]
-h = data["h"]
-i = data["i"]
-j = data["j"]
-k = data["k"]
-l = data["l"]
-m = data["m"]
-n = data["n"]
-o = data["o"]
-p = data["p"]
-q = data["q"]
-r = data["r"]
-s = data["s"]
-t = data["t"]
-u = data["u"]
-v = data["v"]
-w = data["w"]
-x = data["x"]
-y = data["y"]
-z = data["z"]
-all_letters = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z]
+# # miscellaneous
+# a = data["a"]
+# b = data["b"]
+# c = data["c"]
+# d = data["d"]
+# e = data["e"]
+# f = data["f"]
+# g = data["g"]
+# h = data["h"]
+# i = data["i"]
+# j = data["j"]
+# k = data["k"]
+# l = data["l"]
+# m = data["m"]
+# n = data["n"]
+# o = data["o"]
+# p = data["p"]
+# q = data["q"]
+# r = data["r"]
+# s = data["s"]
+# t = data["t"]
+# u = data["u"]
+# v = data["v"]
+# w = data["w"]
+# x = data["x"]
+# y = data["y"]
+# z = data["z"]
+# all_letters = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z]
 all_letter_string = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 # PlayWithBot.done_places = []
+class WinException(Exception):
+    pass
+
+# raise MyException("My hovercraft is full of eels")
 
 class PlayWithBot():
 
     # load json data into variables
     def __init__(self, channel) -> None:
-        # self.a = data["a"]
-        # self.b = data["b"]
-        # self.c = data["c"]
-        # self.d = data["d"]
-        # self.e = data["e"]
-        # self.f = data["f"]
-        # self.g = data["g"]
-        # self.h = data["h"]
-        # self.i = data["i"]
-        # self.j = data["j"]
-        # self.k = data["k"]
-        # self.l = data["l"]
-        # self.m = data["m"]
-        # self.n = data["n"]
-        # self.o = data["o"]
-        # self.p = data["p"]
-        # self.q = data["q"]
-        # self.r = data["r"]
-        # self.s = data["s"]
-        # self.t = data["t"]
-        # self.u = data["u"]
-        # self.v = data["v"]
-        # self.w = data["w"]
-        # self.x = data["x"]
-        # self.y = data["y"]
-        # self.z = data["z"]
+        file = open('places.json', 'r')
+        data = json.loads(file.read())
+        file.close()
+        self.a = data["a"]
+        self.b = data["b"]
+        self.c = data["c"]
+        self.d = data["d"]
+        self.e = data["e"]
+        self.f = data["f"]
+        self.g = data["g"]
+        self.h = data["h"]
+        self.i = data["i"]
+        self.j = data["j"]
+        self.k = data["k"]
+        self.l = data["l"]
+        self.m = data["m"]
+        self.n = data["n"]
+        self.o = data["o"]
+        self.p = data["p"]
+        self.q = data["q"]
+        self.r = data["r"]
+        self.s = data["s"]
+        self.t = data["t"]
+        self.u = data["u"]
+        self.v = data["v"]
+        self.w = data["w"]
+        self.x = data["x"]
+        self.y = data["y"]
+        self.z = data["z"]
         self.channel = channel
         self.invalid_count = None
         self.ai_place_last = None
         self.ai_place = None
         self.done_places = []
         self.invalid_msg = 'If you enter 3 invalid places you will lose'
-        # self.all_letters = [self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h, self.i, self.j, self.k, self.l, self.m, self.n, self.o, self.p, self.q, self.r, self.s, self.t, self.u, self.v, self.w, self.x, self.y, self.z] 
+        self.all_letters = [self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h, self.i, self.j, self.k, self.l, self.m, self.n, self.o, self.p, self.q, self.r, self.s, self.t, self.u, self.v, self.w, self.x, self.y, self.z] 
 
     async def send(self, msg):
         await self.channel.send(msg)
@@ -105,8 +112,8 @@ class PlayWithBot():
             
             #check if invalid count == 3
             if self.invalid_count == 3:
-                # await send('You lost \U0001F602')
-                return
+                await self.send('You lost \U0001F602')
+                raise WinException("Game Ended")
             
             #else, take input
             place=await self.takeInput()
@@ -125,7 +132,7 @@ class PlayWithBot():
             # check if user wants to quit
             if place == 'quit' or place == 'pass':
                 await self.send("You lost \U0001F602")
-                raise Exception("Game Ended")
+                raise WinException("Game Ended")
                     
             # check if place is from correct letter
             while place[0] != self.ai_place_last:
@@ -137,7 +144,7 @@ class PlayWithBot():
                 if self.invalid_count == 3:
                     await self.send("You lost \U0001F602")
                     # return 
-                    raise Exception("Game Ended")
+                    raise WinException("Game Ended")
                 place = await self.takeInput()
 
             #check if place is invalid
@@ -152,7 +159,14 @@ class PlayWithBot():
 
             # check if place exists in database
             # letter = locals()[place[0]]
-            while place not in globals()[place[0]]:
+            # for key_value in self.__dict__.items()[place[0]]:
+            #     # print(key_value[0], '=', key_value[1])
+            #     print(key_value)
+            # print(globals().items())
+            # while place not in globals()[place[0]]:
+            #     await self.send('This is not a place. Enter another place.')
+            #     place = await self.takeInput()
+            while place not in self.__dict__[place[0]]:
                 await self.send('This is not a place. Enter another place.')
                 place = await self.takeInput()
 
@@ -172,7 +186,7 @@ class PlayWithBot():
         await self.send("If you dont know place or you want to quit, just enter \"pass\" or \" quit\" into the chat")
 
         # first place
-        first_letter = random.choice(all_letters)
+        first_letter = random.choice(self.all_letters)
         first_ai_place = random.choice(first_letter)
         self.ai_place_last = first_ai_place[-1].lower()
         await self.send('My Place : '+first_ai_place.title())
@@ -191,10 +205,10 @@ class PlayWithBot():
             # invalid count checker
             if self.invalid_count == 3:
                 await self.send('You lost \U0001F602')
-                raise Exception("Game Ended")
+                raise WinException("Game Ended")
 
             if place[0] == self.ai_place_last:
-                for For in all_letters:
+                for For in self.all_letters:
                     if place in For:
                         For.remove(place)
 
@@ -203,11 +217,15 @@ class PlayWithBot():
             self.done_places.append(place)
             place_given = False
 
-            for cur_letter in all_letters:
+            # for cur_letter in self.all_letters:
+            for cur_letter in all_letter_string:
                 # print(([i for i, var in locals().items() if var == cur_letter][0]))
-                if last == ([i for i, var in globals().items() if var == cur_letter][0]) and cur_letter != []:
-                    ai_place = random.choice(cur_letter)
-                    cur_letter.remove(ai_place)
+                # print(self.__dict__[cur_letter])
+                if last == cur_letter:
+                    # for i in self.__dict__[cur_letter]:
+                    # if last == i and cur_letter != []:
+                    ai_place = random.choice(self.__dict__[cur_letter])
+                    self.__dict__[cur_letter].remove(ai_place)
                     self.done_places.append(ai_place)
                     place_given = True
                     if ai_place == '':
@@ -220,9 +238,24 @@ class PlayWithBot():
                         await self.send('Enter a place from '+self.ai_place_last.upper()+'\n')
                         self.done_places.append(ai_place.lower())
 
+                # if last == ([i for i, var in self.__dict__ if var == cur_letter][0]) and cur_letter != []:
+                #     ai_place = random.choice(cur_letter)
+                #     cur_letter.remove(ai_place)
+                #     self.done_places.append(ai_place)
+                #     place_given = True
+                #     if ai_place == '':
+                #         pass
+
+                #     else:
+                #         await self.send('My Place : '+ai_place.title())
+                #         last_ai_place = ai_place
+                #         self.ai_place_last = last_ai_place[-1].lower()
+                #         await self.send('Enter a place from '+self.ai_place_last.upper()+'\n')
+                #         self.done_places.append(ai_place.lower())
+
             if place_given == False:
                 await self.send("You Won")
-                raise Exception("Game Ended")
+                raise WinException("Game Ended")
 
 @client.event
 async def on_ready():
@@ -230,23 +263,40 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, all_letter_string, all_letters
+    # global a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, all_letter_string, all_letters
+    global count
 
     if message.author == client.user:
         return
     if message.content.startswith('^play'):
         channel = message.channel
         await channel.send("Sure, lets play!!")
-
-        p1 = PlayWithBot(channel)
+        count = count+1
+        if count == 1:
+            p1 = PlayWithBot(channel)
+            print('p1')
+            try:
+                await p1.main()
+            except WinException as exception:
+                print(exception)
+                print(p1.done_places)
+        else:
+            p2 = PlayWithBot(channel)
+            print('p2')
+            try:
+                await p2.main()
+            except WinException as exception:
+                print(exception)
+                print(p2.done_places)
         # p1 = PlayWithBot(channel)
         # p1.channel = channel
         print("game started \n")
-        try:
-            await p1.main()
-        except Exception as exception:
-            print(exception)
-        # PlayWithBot.channel = channel
+        # try:
+        #     await p1.main()
+        # except WinException as exception:
+        #     print(exception)
+
+        # p1.channel = channel
  
 if __name__ == "__main__":
     # and stores the variable names as a string.
