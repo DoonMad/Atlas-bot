@@ -195,6 +195,3 @@ async def on_message(message):
 if __name__ == "__main__":
 
     client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.YdriwQ.RZLoNH8T94bvBcoRHB5zP-PDT0w")
-
-    
-
