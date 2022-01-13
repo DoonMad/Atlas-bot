@@ -1,6 +1,7 @@
 import asyncio
 import random
 import json
+import discord
 
 all_letter_string = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
@@ -52,6 +53,11 @@ class PlayWithBot():
     async def send(self, msg):
         await self.channel.send(msg)
 
+    async def embed(self, title, description):
+        embed=discord.Embed(title=title, description=description, color=0xFF5733)
+        await self.channel.send(embed=embed)
+
+
     def check(self, m):
         return m.channel == self.channel and m.author != self.client.user
 
@@ -69,7 +75,7 @@ class PlayWithBot():
             
             #check if invalid count == 3
             if self.invalid_count == 3:
-                await self.send('You lost \U0001F602')
+                await self.send('You lost 😂')
                 raise WinException("Game Ended")
             
             #else, take input
@@ -79,50 +85,58 @@ class PlayWithBot():
             place = place.lower()
             #check if input is a whitespace or if it is nothing
             while place == '':
+                await msg.add_reaction('🚫')
                 await self.send("Plese enter a place")
                 place = await self.takeInput()
 
             while place.isspace():
+                await msg.add_reaction('🚫')
                 await self.send("Please enter a place.")
                 place = await self.takeInput()
 
             # check if user wants to quit
             if place == 'quit' or place == 'pass':
-                await self.send("You lost \U0001F602")
+                await self.send("You lost 😂")
                 raise WinException("Game Ended")
                     
             # check if place is from correct letter
             while place[0] != self.ai_place_last:
+                await msg.add_reaction('❌')
                 self.invalid_count += 1
                 await self.send(f'Your place should start from {self.ai_place_last.upper()}.')
                 await self.send(f'Invalid Count = {self.invalid_count}')
                 if self.invalid_count < 3:
                     await self.send(self.invalid_msg)
                 if self.invalid_count == 3:
-                    await self.send("You lost \U0001F602")
+                    await self.send("You lost 😂")
                     raise WinException("Game Ended")
                 place = await self.takeInput()
 
-            #check if place is invalid
-            while place[-1] not in all_letter_string:
-                await self.send('This is not a place. Enter another place.')
-                place = await self.takeInput()
+            # #check if place is invalid
+            # while place[-1] not in all_letter_string:
+            #     await msg.add_reaction('\u1f6ab')
+            #     await self.send('This is not a place. Enter another place.')
+            #     place = await self.takeInput()
 
             #check if place is already done
             while place in self.done_places:
+                await msg.add_reaction('🚫')
                 await self.send('This place is done. Enter another place.')
                 place = await self.takeInput()
 
             while place not in self.__dict__[place[0]]:
+                await msg.add_reaction('🚫')
                 await self.send('This is not a place. Enter another place.')
                 place = await self.takeInput()
 
+            await msg.add_reaction('✅')
         return place
 
     async def main(self):
         # await self.send("Let's play Atlas...")
-        await self.send("Sure, lets play!!")
-        await self.send("I will start the game by entering a place.\n")
+        # await self.send("Sure, lets play!!")
+        await self.embed("Let's play Atlas...", "I will start the game by entering a place.")
+        # await self.send("I will start the game by entering a place.\n")
         await self.send("You have to enter a place in 10 seconds. If you fail to do so, your invalid count will increase. If your invalid count reaches 3, you lose.")
         await self.send("If you dont know place or you want to quit, just enter \"pass\" or \" quit\" into the chat")
 
@@ -136,8 +150,6 @@ class PlayWithBot():
         self.done_places.append(first_ai_place.lower())
 
         while True:
-            # self.invalid_count=0
-
             # take input from user
             ai_place = ''
             place = await self.takeInput()
@@ -145,7 +157,7 @@ class PlayWithBot():
 
             # invalid count checker
             if self.invalid_count == 3:
-                await self.send('You lost \U0001F602')
+                await self.send('You lost 😂')
                 raise WinException("Game Ended")
 
             if place[0] == self.ai_place_last:

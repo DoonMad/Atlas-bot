@@ -23,7 +23,6 @@ async def on_message(message):
         while game_id in games_active:
             game_id = random.randint(0, 9999999)
 
-        # create an instace of PlayWithBot class
         locals()['p'+str(game_id)]=atlas.PlayWithBot(channel, client)
         games_active.append(game_id)
 
