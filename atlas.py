@@ -162,7 +162,6 @@ class PlayWithBot():
                 if last == cur_letter:
                     ai_place = random.choice(self.__dict__[cur_letter])
                     self.__dict__[cur_letter].remove(ai_place)
-                    # self.done_places.append(ai_place)
                     place_given = True
                     if ai_place == '':
                         pass
