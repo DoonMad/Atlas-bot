@@ -214,7 +214,7 @@ class Play():
         self.client = client
         self.players = []
         for i in players:
-            # print(i)
+            print(i)
             player = dict()
             player["user"] = i
             player["invalid"] = 0
@@ -224,8 +224,8 @@ class Play():
     async def send(self, msg):
         await self.channel.send(msg)
 
-    async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False):
-        embed = discord.Embed(title=title, color=0xFF5733)
+    async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False, msg=False):
+        embed = discord.Embed(title=title, color=0xFF4040)
         if description:
             embed.description=description
         if fieldT:
@@ -234,10 +234,23 @@ class Play():
             embed.set_author(name=author, icon_url=author_icon)
         if thumbnail:
             embed.set_thumbnail(url=thumbnail)
-        await self.channel.send(embed=embed)
+        if msg:
+            await msg.reply(embed=embed)
+        else:
+            await self.channel.send(embed=embed)
 
     def check(self, m):
         return m.channel == self.channel and m.author.mention == self.player['user']
+
+    async def addInvalid(self, desc, msg=False):
+        self.player["invalid"] = self.player["invalid"]+1
+        if self.player["invalid"] == 1:
+            await self.embed(title='❌', description=desc, msg=msg)
+        if self.player["invalid"] == 2:
+            await self.embed(title='❌\t❌', description=desc, msg=msg)
+        if self.player["invalid"] == 3:
+            await self.embed(title='❌\t❌\t❌', description=desc+"\nYou lost 😂", msg=msg)
+            del self.player
 
     async def takeInput(self):
         try:
@@ -245,18 +258,8 @@ class Play():
             place = msg.content
 
         except asyncio.exceptions.TimeoutError:
-            # send invalid count message and increase count
-            self.player["invalid"] = self.player["invalid"]+1
-            if self.player["invalid"] == 1:
-                await self.embed(title='❌', description="You didn't enter a place within 10 seconds. ⌛")
-            if self.player["invalid"] == 2:
-                await self.embed(title='❌\t❌', description="You didn't enter a place within 10 seconds. ⌛")
-            if self.player["invalid"] == 3:
-                await self.embed(title='❌\t❌\t❌', description="You lost 😂")
-                del self.player
-                return
-            # else, take input
-            place = await self.takeInput()
+            await self.addInvalid(self.player["user"]+" You didn't enter a place within 10 seconds ⌛")
+            return
 
         else:
             place = place.lower()
@@ -268,35 +271,21 @@ class Play():
 
             # check if place is from correct letter
             if self.last_letter:
-                while place[0] != self.last_letter:
+                if place[0] != self.last_letter:
                     await msg.add_reaction('❌')
-                    self.player["invalid"] += 1
-                    if self.player["invalid"] == 1:
-                        await self.embed(title='❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
-                    if self.player["invalid"] == 2:
-                        await self.embed(title='❌\t❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
-                    if self.player["invalid"] == 3:
-                        await self.embed(title='❌\t❌\t❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
-                        del self.player
-                        return
-                    place = await self.takeInput()
-                    if place == None:
-                        return
+                    await self.addInvalid(self.player["user"]+f' Your place did not start from **{self.last_letter.upper()}** 😑', msg=msg)
+                    return
 
             # check if place is already done
-            while place in self.done_places:
-                await msg.add_reaction('🚫')
-                await self.send(f'This place is done. Enter another place from {self.last_letter.upper()}. 😶')
-                place = await self.takeInput()
-                if place == None:
-                    return
+            if place in self.done_places:
+                await msg.add_reaction('❌')
+                await self.addInvalid(self.player["user"]+" This place has been entered 😶", msg=msg)
+                return
 
-            while place not in self.__dict__[place[0]]:
-                await msg.add_reaction('🚫')
-                await self.send(f'This is not a place. Enter another plac from {self.last_letter.upper()}. 😑')
-                place = await self.takeInput()
-                if place == None:
-                    return
+            if place not in self.__dict__[place[0]]:
+                await msg.add_reaction('❌')
+                await self.addInvalid(self.player["user"]+" This is not a place 😑", msg=msg)
+                return
 
             if msg.content.lower() == place:
                 await msg.add_reaction('✅')
@@ -308,9 +297,11 @@ class Play():
 
         self.last_letter = random.choice(string.ascii_lowercase)
         while True:
+            print("in while")
             if len(self.players) < 2:
                 await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
                 raise WinException("game ended")
+
             for player in range(len(self.players)):
                 if len(self.players) < 2:
                     await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
@@ -318,11 +309,13 @@ class Play():
                 self.player = self.players[player]
                 await self.send(self.player["user"]+" Enter a place from **"+self.last_letter.upper()+"**")
                 place = await self.takeInput()
-                if place == None or not self.player:
+
+                if "player" not in self.__dict__:
                     await self.send(self.players[player]["user"]+" **eliminated 😂**")
                     del self.players[player]
                     continue
-
+                if place == None:
+                    continue
                 # print(place)
                 self.last_letter = place[-1]
 

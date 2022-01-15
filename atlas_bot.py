@@ -67,7 +67,7 @@ async def on_message(message):
                 for i in range(len(players)):
                     players[i] = players[i].mention
         if len(players) == 1:
-            await channel.send('Aww, no one is there to play with '+players[0]+', but don\'t you worry, you can still play with me. To play with me enter \'^playwithbot\' or \'pwb\' into the chat. 🙃')
+            await channel.send('Aww, no one is there to play with '+players[0]+', but don\'t you worry, you can still play with me. To play with me enter ^playwithbot or ^pwb into the chat. 🙃')
         elif len(players) < 1:
             await channel.send("Bruh, react if you want to play. Don\'t waste my time 😠")
         else:
