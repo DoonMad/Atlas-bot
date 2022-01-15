@@ -12,6 +12,7 @@ games_active = []
 @client.event
 async def on_ready():
     print("Bot logged in as {}".format(client.user))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='^help'))
 
 
 @client.event
@@ -24,21 +25,6 @@ async def on_message(message):
 
     # command 1
     if message.content.startswith('^playwithbot') or message.content.startswith('^pwb'):
-        # react_msg = await channel.send("React with ✅ to play")
-        # await react_msg.add_reaction('✅')
-
-        # def check(reaction, user):
-        #     global player
-        #     if reaction.message == react_msg and str(reaction.emoji) == '✅' and not user.bot:
-        #         player = user
-        #         return True
-        #     return False
-
-        # try:
-        #     await client.wait_for('reaction_add', timeout=10, check=check)
-        # except asyncio.TimeoutError:
-        #     await channel.send('Bruh, react to the message if you want to play 🤨')
-        # else:
         player = message.author
 
         game_id = random.randint(0, 9999999)
@@ -49,11 +35,12 @@ async def on_message(message):
         
         # run the function
         try:
-            print("game started \n")
+            # print("game started \n")
             await locals()['p'+str(game_id)].main()
         except atlas.WinException as exception:
-            print(exception)
-            print(locals()['p'+str(game_id)].done_places)
+            # print(exception)
+            # print(locals()['p'+str(game_id)].done_places)
+            pass
 
         # destroy the instance
         del locals()['p'+str(game_id)]
@@ -68,37 +55,38 @@ async def on_message(message):
     #command 3
     if message.content.startswith('^play'):
         players = []
-        react_msg = await channel.send("React with ✅ to play")
+        embed = discord.Embed(title="React to play!", description="React to this message with ✅ to play.", color=0x00d26a)
+        react_msg = await channel.send(embed=embed)
         await react_msg.add_reaction('✅')
-
-        def check(reaction, user):
-            # global player
-            if reaction.message == react_msg and str(reaction.emoji) == '✅' and not user.bot:
-                players.append(user)
-                return True
-            return False
-
-        try:
-            await client.wait_for('reaction_add', timeout=10, check=check)
-        except asyncio.TimeoutError:
-            await channel.send('Bruh, react to the message if you want to play 🤨')
-
-        game_id = random.randint(0, 9999999)
-        while game_id in games_active:
+        await asyncio.sleep(10)
+        cache_msg = await react_msg.channel.fetch_message(react_msg.id)
+        reactions = cache_msg.reactions
+        for reaction in reactions:
+            if str(reaction) == '✅' and reaction.message.id == react_msg.id:
+                players = [user async for user in reaction.users() if user != client.user]
+                for i in range(len(players)):
+                    players[i] = players[i].mention
+        if len(players) == 1:
+            await channel.send('Aww, no one is there to play with '+players[0]+', but don\'t you worry, you can still play with me. To play with me enter \'^playwithbot\' or \'pwb\' into the chat. 🙃')
+        elif len(players) < 1:
+            await channel.send("Bruh, react if you want to play. Don\'t waste my time 😠")
+        else:
             game_id = random.randint(0, 9999999)
-        locals()['p'+str(game_id)] = atlas.Play(channel, client, players)
-        games_active.append(game_id)
+            while game_id in games_active:
+                game_id = random.randint(0, 9999999)
+            locals()['p'+str(game_id)] = atlas.Play(channel, client, players)
+            games_active.append(game_id)
 
-        try:
-            print("game started \n")
-            await locals()['p'+str(game_id)].main()
-        except atlas.WinException as exception:
-            print(exception)
-            print(locals()['p'+str(game_id)].done_places)
-
-        # destroy the instance
-        del locals()['p'+str(game_id)]
-        games_active.remove(game_id)
+            try:
+                # print("game started \n")
+                await locals()['p'+str(game_id)].main()
+            except atlas.WinException as exception:
+                # print(exception)
+                # print(locals()['p'+str(game_id)].done_places)
+                pass
+            # destroy the instance
+            del locals()['p'+str(game_id)]
+            games_active.remove(game_id)
 
 
 if __name__ == "__main__":

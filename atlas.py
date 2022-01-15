@@ -1,35 +1,8 @@
 import asyncio
 import random
 import json
+import string
 import discord
-
-# all_letter_string = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-# a =
-# b =
-# c =
-# d =
-# e =
-# f =
-# g =
-# h =
-# i =
-# j =
-# k =
-# l =
-# m =
-# n =
-# o =
-# p =
-# q =
-# r =
-# s =
-# t =
-# u =
-# v =
-# w =
-# x =
-# y =
-# z =
 
 
 class WinException(Exception):
@@ -83,11 +56,11 @@ class PlayWithBot():
         await self.channel.send(msg)
 
     async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False):
-        embed = discord.Embed(title=title+'\n\n', color=0xFF5733)
+        embed = discord.Embed(title=title, color=0xFF5733)
         if description:
-            embed.description = '\n'+description
+            embed.description = description
         if fieldT:
-            embed.add_field(name='\n'+fieldT, value=fieldD, inline=inline)
+            embed.add_field(name=fieldT, value=fieldD, inline=inline)
         if author:
             embed.set_author(name=author, icon_url=author_icon)
         if thumbnail:
@@ -239,23 +212,24 @@ class Play():
         self.done_places = []
         self.all_letters = [self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h, self.i, self.j, self.k, self.l, self.m, self.n, self.o, self.p, self.q, self.r, self.s, self.t, self.u, self.v, self.w, self.x, self.y, self.z]
         self.client = client
-        self.players = dict()
-        for i in range(0, len(players)):
+        self.players = []
+        for i in players:
+            # print(i)
             player = dict()
-            player["user"] = players[i]
+            player["user"] = i
             player["invalid"] = 0
-            self.players[i] = player
+            self.players.append(player)
         self.player = None
 
     async def send(self, msg):
         await self.channel.send(msg)
 
     async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False):
-        embed = discord.Embed(title=title+'\n\n', color=0xFF5733)
+        embed = discord.Embed(title=title, color=0xFF5733)
         if description:
-            embed.description = '\n'+description
+            embed.description=description
         if fieldT:
-            embed.add_field(name='\n'+fieldT, value=fieldD, inline=inline)
+            embed.add_field(name=fieldT, value=fieldD, inline=inline)
         if author:
             embed.set_author(name=author, icon_url=author_icon)
         if thumbnail:
@@ -263,22 +237,15 @@ class Play():
         await self.channel.send(embed=embed)
 
     def check(self, m):
-        # return m.channel == self.channel and m.author != self.client.user
-        # print(m)
-        print(m.author.id)
-        print(self.player['user'].id)
-        return m.channel == self.channel and m.author.id == self.player['user'].id
+        return m.channel == self.channel and m.author.mention == self.player['user']
 
     async def takeInput(self):
-        # invalid = self.player["invalid"]
-        # print(self.player)
         try:
             msg = await self.client.wait_for('message', check=self.check, timeout=10)
             place = msg.content
 
         except asyncio.exceptions.TimeoutError:
             # send invalid count message and increase count
-            
             self.player["invalid"] = self.player["invalid"]+1
             if self.player["invalid"] == 1:
                 await self.embed(title='❌', description="You didn't enter a place within 10 seconds. ⌛")
@@ -288,25 +255,16 @@ class Play():
                 await self.embed(title='❌\t❌\t❌', description="You lost 😂")
                 del self.player
                 return
-                # raise WinException("Game Ended")
             # else, take input
             place = await self.takeInput()
 
         else:
             place = place.lower()
             # check if user wants to quit
-            if place == 'quit' or place == 'pass':
-                if self.__dict__[self.last_letter] != []:
-                    bot_place = random.choice(
-                        self.__dict__[self.last_letter])
-                    self.done_places.append(bot_place.lower())
-                    await self.embed(title='You lost 😂', description='You could have said **'+bot_place.title()+'**')
-                    del self.player
-                    return
-                    # raise WinException("Game Ended")
-                # else:
-                #     await self.embed(title="Draw Match", description="You know what. even I do not know a place from "+self.last_letter+", why not call it a draw?")
-                #     raise WinException("Game Ended")
+            if place == 'quit':
+                await msg.add_reaction('👍')
+                del self.player
+                return
 
             # check if place is from correct letter
             if self.last_letter:
@@ -314,75 +272,63 @@ class Play():
                     await msg.add_reaction('❌')
                     self.player["invalid"] += 1
                     if self.player["invalid"] == 1:
-                        await self.embed(title='❌', description=f'Your place should start from {self.last_letter.upper()}. 😑')
+                        await self.embed(title='❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
                     if self.player["invalid"] == 2:
-                        await self.embed(title='❌\t❌', description=f'Your place should start from {self.last_letter.upper()}. 😑')
+                        await self.embed(title='❌\t❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
                     if self.player["invalid"] == 3:
-                        await self.embed(title='❌\t❌\t❌', description="You lost 😂")
+                        await self.embed(title='❌\t❌\t❌', description=self.player["user"]+f'Your place did not start from {self.last_letter.upper()}. 😑')
                         del self.player
-                        # raise WinException("Game Ended")
                         return
                     place = await self.takeInput()
+                    if place == None:
+                        return
 
             # check if place is already done
             while place in self.done_places:
                 await msg.add_reaction('🚫')
-                await self.send('This place is done. Enter another place. 😶')
+                await self.send(f'This place is done. Enter another place from {self.last_letter.upper()}. 😶')
                 place = await self.takeInput()
+                if place == None:
+                    return
 
             while place not in self.__dict__[place[0]]:
                 await msg.add_reaction('🚫')
-                await self.send('This is not a place. Enter another place. 😑')
+                await self.send(f'This is not a place. Enter another plac from {self.last_letter.upper()}. 😑')
                 place = await self.takeInput()
+                if place == None:
+                    return
 
             if msg.content.lower() == place:
                 await msg.add_reaction('✅')
         return place
 
-    async def givePlace(self, last):
-        if self.__dict__[last] != []:
-            bot_place = random.choice(self.__dict__[last])
-            self.__dict__[last].remove(bot_place)
-            self.last_letter = bot_place[-1].lower()
-            await self.embed(title=bot_place.title(), description='Enter a place from '+self.last_letter.upper())
-            self.done_places.append(bot_place.lower())
-        else:
-            await self.send("You Won 🏆")
-            raise WinException("Game Ended")
-
     async def main(self):
-        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, your invalid count will increase. If you enter a place starting with a wrong letter, it will also increase your invalid count. If your invalid count reaches 3, you lose.\n\n" +
-                         "If you dont know a place or you want to quit, just enter \"pass\" or \" quit\" into the chat\n\n" +
-                         "Now, I will start the game by entering a place.", author=self.client.user.name, author_icon=self.client.user.avatar_url)
+        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get a cross (❌). If you enter a place starting with a wrong letter, it will also give you a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
+                         "If you dont know a place or you want to quit, just enter \"quit\" into the chat\n\n\n", author=self.client.user.name, author_icon=self.client.user.avatar_url)
 
-        # first place
-        # first_letter = random.choice(self.all_letters)
-        # first_bot_place = random.choice(first_letter)
-        # self.bot_place_last = first_bot_place[-1].lower()
-        # await self.embed(title=first_bot_place.title(), description='Enter a place from '+self.bot_place_last.upper())
-        # first_letter.remove(first_bot_place)
-        # self.done_places.append(first_bot_place.lower())
-
+        self.last_letter = random.choice(string.ascii_lowercase)
         while True:
-            for player in self.players:
-                self.player = self.players[player]
-                if self.last_letter:
-                    await self.send("Enter a place from "+self.last_letter)
-                place = await self.takeInput()
-                print(place)
-                self.last_letter = place[-1]
-                if len(self.players) == 0:
+            if len(self.players) < 2:
+                await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
+                raise WinException("game ended")
+            for player in range(len(self.players)):
+                if len(self.players) < 2:
+                    await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
                     raise WinException("game ended")
+                self.player = self.players[player]
+                await self.send(self.player["user"]+" Enter a place from **"+self.last_letter.upper()+"**")
+                place = await self.takeInput()
+                if place == None or not self.player:
+                    await self.send(self.players[player]["user"]+" **eliminated 😂**")
+                    del self.players[player]
+                    continue
+
+                # print(place)
+                self.last_letter = place[-1]
 
                 if self.last_letter:
                     if place[0] == self.last_letter:
                         for For in self.all_letters:
                             if place in For:
                                 For.remove(place)
-
-                # if place entered is correct and all, then run this
-                # self.last_letter = place[-1]
                 self.done_places.append(place)
-                # await self.givePlace(last=last)
-
-
