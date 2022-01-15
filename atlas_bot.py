@@ -88,6 +88,5 @@ async def on_message(message):
             del locals()['p'+str(game_id)]
             games_active.remove(game_id)
 
-
 if __name__ == "__main__":
     client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.YdriwQ.RZLoNH8T94bvBcoRHB5zP-PDT0w")
