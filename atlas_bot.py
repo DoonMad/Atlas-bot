@@ -23,7 +23,16 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    # command 1
+    #command 1
+    if message.content.startswith('^help'):
+        embed = discord.Embed(description="Hello there! Here all all the commnads you can use. New commands will be added soon!", color=0x1e1e1e)
+        embed.set_author(name="Atlas-bot Help Command", icon_url=client.user.avatar_url)
+        # embed = discord.Embed(title="Hello there! Here all all the commnads you can use.", description="", color=0x1e1e1e)
+        embed.add_field(name="`^playwithbot`, `^pwb`", value="To play atlas with me type this into the chat.", inline=True)
+        embed.add_field(name="`^play`", value="To play atlas with your friends type this into the chat.", inline=True)
+        await channel.send(embed=embed)
+
+    # command 2
     if message.content.startswith('^playwithbot') or message.content.startswith('^pwb'):
         player = message.author
 
@@ -35,22 +44,16 @@ async def on_message(message):
         
         # run the function
         try:
-            # print("game started \n")
+            print("game started")
             await locals()['p'+str(game_id)].main()
         except atlas.WinException as exception:
-            # print(exception)
+            print(exception+'\n')
             # print(locals()['p'+str(game_id)].done_places)
             pass
 
         # destroy the instance
         del locals()['p'+str(game_id)]
         games_active.remove(game_id)
-
-
-    # command 2
-    if message.content.startswith('^servers'):
-        await channel.send("I am in "+str(len(client.guilds))+" servers ❤️")
-
 
     #command 3
     if message.content.startswith('^play'):
@@ -78,15 +81,20 @@ async def on_message(message):
             games_active.append(game_id)
 
             try:
-                # print("game started \n")
+                print("game started")
                 await locals()['p'+str(game_id)].main()
             except atlas.WinException as exception:
-                # print(exception)
+                print(exception+"\n")
                 # print(locals()['p'+str(game_id)].done_places)
                 pass
             # destroy the instance
             del locals()['p'+str(game_id)]
             games_active.remove(game_id)
+
+    # command 4
+    if message.content.startswith('^servers'):
+        await channel.send("I am in "+str(len(client.guilds))+" servers ❤️")
+
 
 if __name__ == "__main__":
     client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.YdriwQ.RZLoNH8T94bvBcoRHB5zP-PDT0w")

@@ -55,7 +55,7 @@ class PlayWithBot():
     async def send(self, msg):
         await self.channel.send(msg)
 
-    async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False):
+    async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False, msg=False):
         embed = discord.Embed(title=title, color=0xFF5733)
         if description:
             embed.description = description
@@ -65,12 +65,25 @@ class PlayWithBot():
             embed.set_author(name=author, icon_url=author_icon)
         if thumbnail:
             embed.set_thumbnail(url=thumbnail)
-        await self.channel.send(embed=embed)
+        if msg:
+            await msg.reply(embed=embed)
+        else:
+            await self.channel.send(embed=embed)
 
     def check(self, m):
         # return m.channel == self.channel and m.author != self.client.user
         # print(m)
         return m.channel == self.channel and m.author == self.player
+
+    async def addInvalid(self, desc, msg=False):
+        self.invalid_count = self.invalid_count+1
+        if self.invalid_count == 1:
+            await self.embed(title='❌', description=desc, msg=msg)
+        if self.invalid_count == 2:
+            await self.embed(title='❌\t❌', description=desc, msg=msg)
+        if self.invalid_count == 3:
+            await self.embed(title='❌\t❌\t❌', description=desc+"\nYou lost 😂", msg=msg)
+            raise WinException("Game Ended")
 
     async def takeInput(self):
         try:
@@ -79,15 +92,16 @@ class PlayWithBot():
 
         except asyncio.exceptions.TimeoutError:
             # send invalid count message and increase count
-            self.invalid_count = self.invalid_count+1
-            if self.invalid_count == 1:
-                await self.embed(title='❌', description="You didn't enter a place within 10 seconds. ⌛")
-            if self.invalid_count == 2:
-                await self.embed(title='❌\t❌', description="You didn't enter a place within 10 seconds. ⌛")
-            if self.invalid_count == 3:
-                await self.embed(title='❌\t❌\t❌', description="You lost 😂")
-                raise WinException("Game Ended")
+            # self.invalid_count = self.invalid_count+1
+            # if self.invalid_count == 1:
+            #     await self.embed(title='❌', description="You didn't enter a place within 10 seconds. ⌛")
+            # if self.invalid_count == 2:
+            #     await self.embed(title='❌\t❌', description="You didn't enter a place within 10 seconds. ⌛")
+            # if self.invalid_count == 3:
+            #     await self.embed(title='❌\t❌\t❌', description="You lost 😂")
+            #     raise WinException("Game Ended")
             # else, take input
+            await self.addInvalid("You didn't enter a place within 10 seconds. ⌛")
             place = await self.takeInput()
 
         else:
@@ -102,31 +116,34 @@ class PlayWithBot():
                     await self.embed(title='You lost 😂', description='You could have said **'+bot_place.title()+'**')
                     raise WinException("Game Ended")
                 else:
-                    await self.embed(title="Draw Match", description="You know what. even I do not know a place from "+self.bot_place_last+", why not call it a draw?")
+                    await self.embed(title="Draw Match", description="You know what, even I do not know a place from "+self.bot_place_last+", why not call it a draw?")
                     raise WinException("Game Ended")
 
             # check if place is from correct letter
             while place[0] != self.bot_place_last:
                 await msg.add_reaction('❌')
-                self.invalid_count += 1
-                if self.invalid_count == 1:
-                    await self.embed(title='❌', description=f'Your place should start from {self.bot_place_last.upper()}. 😑')
-                if self.invalid_count == 2:
-                    await self.embed(title='❌\t❌', description=f'Your place should start from {self.bot_place_last.upper()}. 😑')
-                if self.invalid_count == 3:
-                    await self.embed(title='❌\t❌\t❌', description="You lost 😂")
-                    raise WinException("Game Ended")
+                # self.invalid_count += 1
+                # if self.invalid_count == 1:
+                #     await self.embed(title='❌', description=f'Your place should start from {self.bot_place_last.upper()}. 😑')
+                # if self.invalid_count == 2:
+                #     await self.embed(title='❌\t❌', description=f'Your place should start from {self.bot_place_last.upper()}. 😑')
+                # if self.invalid_count == 3:
+                #     await self.embed(title='❌\t❌\t❌', description="You lost 😂")
+                #     raise WinException("Game Ended")
+                await self.addInvalid(f'Your place should start from {self.bot_place_last.upper()}. 😑', msg)
                 place = await self.takeInput()
 
             # check if place is already done
             while place in self.done_places:
-                await msg.add_reaction('🚫')
-                await self.send('This place is done. Enter another place. 😶')
+                await msg.add_reaction('❌')
+                # await self.send('This place is done. Enter another place. 😶')
+                await self.addInvalid('This place is done. Enter another place. 😶', msg)
                 place = await self.takeInput()
 
             while place not in self.__dict__[place[0]]:
-                await msg.add_reaction('🚫')
-                await self.send('This is not a place. Enter another place. 😑')
+                await msg.add_reaction('❌')
+                # await self.send('This is not a place. Enter another place. 😑')
+                await self.addInvalid('This is not a place. Enter another place. 😑', msg)
                 place = await self.takeInput()
 
             if msg.content.lower() == place:
@@ -160,7 +177,7 @@ class PlayWithBot():
         while True:
             # take input from user
             place = await self.takeInput()
-            print(place)
+            # print(place)
 
             if place[0] == self.bot_place_last:
                 for For in self.all_letters:
