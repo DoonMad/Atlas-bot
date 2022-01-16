@@ -1,2 +1,2 @@
 worker: python atlas_bot.py
-web: gunicorn app:app
+web: gunicorn website.app:app
