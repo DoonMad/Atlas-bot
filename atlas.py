@@ -207,7 +207,8 @@ class Play():
         self.last_letter = None
         # self.bot_place = None
         self.done_places = []
-        self.all_letters = [self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h, self.i, self.j, self.k, self.l, self.m, self.n, self.o, self.p, self.q, self.r, self.s, self.t, self.u, self.v, self.w, self.x, self.y, self.z]
+        self.all_letters = [self.a, self.b, self.c, self.d, self.e, self.f, self.g, self.h, self.i, self.j, self.k, self.l,
+                            self.m, self.n, self.o, self.p, self.q, self.r, self.s, self.t, self.u, self.v, self.w, self.x, self.y, self.z]
         self.client = client
         self.players = []
         for i in players:
@@ -224,7 +225,7 @@ class Play():
     async def embed(self, title, description=False, thumbnail=False, author=False, author_icon=False, fieldT=False, fieldD=False, inline=False, msg=False):
         embed = discord.Embed(title=title, color=0xFF4040)
         if description:
-            embed.description=description
+            embed.description = description
         if fieldT:
             embed.add_field(name=fieldT, value=fieldD, inline=inline)
         if author:
