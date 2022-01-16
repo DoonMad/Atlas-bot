@@ -95,6 +95,10 @@ async def on_message(message):
     if message.content.startswith('^servers'):
         await channel.send("I am in "+str(len(client.guilds))+" servers ❤️")
 
+    #command 5
+    if message.content.startswith('^allservers'):
+        for server in client.guilds:
+            await channel.send(server.name+" ❤️")
 
 if __name__ == "__main__":
     client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.YdriwQ.RZLoNH8T94bvBcoRHB5zP-PDT0w")
