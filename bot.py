@@ -51,7 +51,7 @@ async def on_message(message):
             print("game started")
             await locals()['p'+str(game_id)].main()
         except atlas.WinException as exception:
-            print(exception+'\n')
+            print(str(exception)+'\n')
             # print(locals()['p'+str(game_id)].done_places)
             pass
 
@@ -89,7 +89,7 @@ async def on_message(message):
                 print("game started")
                 await locals()['p'+str(game_id)].main()
             except atlas.WinException as exception:
-                print(exception+"\n")
+                print(str(exception)+"\n")
                 # print(locals()['p'+str(game_id)].done_places)
                 pass
             # destroy the instance
