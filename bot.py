@@ -26,7 +26,8 @@ async def on_message(message):
     # command 1
     if message.content.startswith('^help'):
         embed = discord.Embed(
-            description="Hello there! Here all all the commnads you can use. New commands will be added soon!", color=0x1e1e1e)
+            description="Hello there! Here all all the commnads you can use.||\n\n||**Rules**\nYou have to enter a place from the last letter of the last entered place within 10 seconds. If you fail to do so, you get a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose. " +
+        "If you dont know a place enter `pass` or if you want to quit, enter `quit` into the chat.||\n\n||", color=0x1e1e1e)
         embed.set_author(name="Atlas-bot Help Command",
                          icon_url=client.user.avatar_url)
         # embed = discord.Embed(title="Hello there! Here all all the commnads you can use.", description="", color=0x1e1e1e)

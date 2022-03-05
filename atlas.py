@@ -143,9 +143,9 @@ class PlayWithBot():
             raise WinException("Game Ended")
 
     async def main(self):
-        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get 1 cross (❌). If you enter a place starting with a wrong letter, it will also give you a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
-                         "If you dont know a place or you want to quit, just enter \"pass\" or \" quit\" into the chat\n\n\n" +
-                         "Now, I will start the game by entering a place.", author=self.client.user.name, author_icon=self.client.user.avatar_url)
+        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get 1 cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
+        "If you dont know a place and you want to quit, enter\" quit\" into the chat\n\n\n" +
+        "Now, I will start the game by entering a place.", author=self.client.user.name, author_icon=self.client.user.avatar_url)
 
         # first place
         first_letter = random.choice(self.all_letters)
@@ -297,12 +297,12 @@ class Play():
         return place
 
     async def main(self):
-        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get a cross (❌). If you enter a place starting with a wrong letter, it will also give you a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
-                         "If you dont know a place or you want to quit, just enter \"quit\" into the chat\n\n\n", author=self.client.user.name, author_icon=self.client.user.avatar_url)
+        await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
+        "If you dont know a place enter \"pass\" or if you want to quit, enter \"quit\" into the chat", author=self.client.user.name, author_icon=self.client.user.avatar_url)
 
         self.last_letter = random.choice(string.ascii_lowercase)
         while True:
-            print("in while")
+            # print("in while")
             if len(self.players) < 2:
                 await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
                 raise WinException("game ended")
