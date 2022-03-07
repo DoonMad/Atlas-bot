@@ -308,24 +308,38 @@ class Play():
                 raise WinException("game ended")
 
             for player in range(len(self.players)):
+                # print(len(self.players))
+                # print(player)
                 if len(self.players) < 2:
                     await self.send("🏆 "+self.players[0]["user"]+" **won the game 🏆**")
                     raise WinException("game ended")
+                # print(self.players)
+                # print("player : "+str(player))
+                # print("length : "+str(len(self.players)))
                 self.player = self.players[player]
                 await self.send(self.player["user"]+" Enter a place from **"+self.last_letter.upper()+"**")
                 place = await self.takeInput()
                 
                 if "player" not in self.__dict__:
+                    # print()
                     await self.send(self.players[player]["user"]+" **eliminated 😂**")
                     del self.players[player]
-                    continue
+                    break
+                    # print(len(self.players))
+                    # continue
                 if place == None:
+                    if self.player['invalid'] == 3:
+                        del self.player
+                    if "player" not in self.__dict__:
+                        del self.players[player]
+                        break
                     continue
                 if place == "pass":
                     if self.player['invalid'] == 3:
                         del self.player
                     if "player" not in self.__dict__:
                         del self.players[player]
+                        break
                     continue
                 self.last_letter = place[-1]
 
