@@ -31,7 +31,7 @@ async def on_message(message):
         embed.set_author(name="Atlas-bot Help Command",
                          icon_url=client.user.avatar_url)
         # embed = discord.Embed(title="Hello there! Here all all the commnads you can use.", description="", color=0x1e1e1e)
-        embed.add_field(name="`^playwithbot`, `^pwb`",
+        embed.add_field(name="`^pwb`",
                         value="To play atlas with me type this into the chat.", inline=True)
         embed.add_field(
             name="`^play`", value="To play atlas with your friends type this into the chat.", inline=True)
