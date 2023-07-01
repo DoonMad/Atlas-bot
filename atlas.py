@@ -145,7 +145,7 @@ class PlayWithBot():
     async def main(self):
         await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get 1 cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
         "If you dont know a place and you want to quit, enter\" quit\" into the chat\n\n\n" +
-        "Now, I will start the game by entering a place.", author=self.client.user.name, author_icon=self.client.user.avatar_url)
+        "Now, I will start the game by entering a place.", author=self.client.user.name, author_icon=self.client.user.avatar)
 
         # first place
         first_letter = random.choice(self.all_letters)
@@ -298,7 +298,7 @@ class Play():
 
     async def main(self):
         await self.embed("Let's play Atlas!!", description="||\n||**Rules**\n You have to enter a place within 10 seconds. If you fail to do so, you get a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose.\n\n" +
-        "If you dont know a place enter \"pass\" or if you want to quit, enter \"quit\" into the chat", author=self.client.user.name, author_icon=self.client.user.avatar_url)
+        "If you dont know a place enter \"pass\" or if you want to quit, enter \"quit\" into the chat", author=self.client.user.name, author_icon=self.client.user.avatar)
 
         self.last_letter = random.choice(string.ascii_lowercase)
         while True:

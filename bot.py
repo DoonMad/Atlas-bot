@@ -3,16 +3,48 @@ import asyncio
 import discord
 import atlas
 import random
+from discord import app_commands
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+# bot = commands.Bot(command_prefix='^', intents=intents)
+
+# @bot.hybrid_command()
+# async def test(ctx):
+#     await ctx.send("This is a hybrid command!")
+
+# bot.add_command(test)
+
 
 # global variables
-client = discord.Client()
+client = discord.Client(intents=intents)
 games_active = []
+tree = discord.app_commands.CommandTree(client)
+
+@tree.command(description="Atlas bot help menu.", guild=discord.Object(id=870331889637003274))
+async def atlashelp(interaction=discord.Interaction):
+    
+    await interaction.response.send_message(embed=helpEmbed)
 
 
 @client.event
 async def on_ready():
+    await tree.sync(guild=discord.Object(id=870331889637003274))
     print("Bot logged in as {}".format(client.user))
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='^help'))
+    global helpEmbed
+    helpEmbed = discord.Embed(
+            description="Hello there! Here all all the commnads you can use.||\n\n||**Rules**\n"+
+            "You have to enter a place from the last letter of the last entered place within 10 seconds. If you fail to do so, you get a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose. " +
+        "If you dont know a place enter `pass` or if you want to quit, enter `quit` into the chat.||\n\n||", color=0x1e1e1e)
+    helpEmbed.set_author(name="Atlas-bot Help Command",
+                         icon_url=client.user.avatar)
+    helpEmbed.add_field(name="`^pwb`",
+                        value="To play atlas with me type this into the chat.", inline=True)
+    helpEmbed.add_field(
+            name="`^play`", value="To play atlas with your friends type this into the chat.", inline=True)
 
 
 @client.event
@@ -25,20 +57,10 @@ async def on_message(message):
 
     # command 1
     if message.content.startswith('^help'):
-        embed = discord.Embed(
-            description="Hello there! Here all all the commnads you can use.||\n\n||**Rules**\nYou have to enter a place from the last letter of the last entered place within 10 seconds. If you fail to do so, you get a cross (❌). If you get 3 crosses (❌\t❌\t❌), you lose. " +
-        "If you dont know a place enter `pass` or if you want to quit, enter `quit` into the chat.||\n\n||", color=0x1e1e1e)
-        embed.set_author(name="Atlas-bot Help Command",
-                         icon_url=client.user.avatar_url)
-        # embed = discord.Embed(title="Hello there! Here all all the commnads you can use.", description="", color=0x1e1e1e)
-        embed.add_field(name="`^pwb`",
-                        value="To play atlas with me type this into the chat.", inline=True)
-        embed.add_field(
-            name="`^play`", value="To play atlas with your friends type this into the chat.", inline=True)
-        await channel.send(embed=embed)
+        await channel.send(embed=helpEmbed)
 
     # command 2
-    if message.content.startswith('^playwithbot') or message.content.startswith('^pwb'):
+    if message.content.startswith('^pwb'):
         player = message.author
 
         game_id = random.randint(0, 9999999)
