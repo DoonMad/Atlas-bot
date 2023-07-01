@@ -23,7 +23,7 @@ client = discord.Client(intents=intents)
 games_active = []
 tree = discord.app_commands.CommandTree(client)
 
-@tree.command(description="Atlas bot help menu.", guild=discord.Object(id=870331889637003274))
+@tree.command(description="Atlas bot help menu.")
 async def atlashelp(interaction=discord.Interaction):
     
     await interaction.response.send_message(embed=helpEmbed)
@@ -31,7 +31,7 @@ async def atlashelp(interaction=discord.Interaction):
 
 @client.event
 async def on_ready():
-    await tree.sync(guild=discord.Object(id=870331889637003274))
+    await tree.sync()
     print("Bot logged in as {}".format(client.user))
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='^help'))
     global helpEmbed
