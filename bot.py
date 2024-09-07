@@ -129,4 +129,4 @@ async def on_message(message):
             await channel.send(server.name+" ❤️")
 
 if __name__ == "__main__":
-    client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.YdriwQ.RZLoNH8T94bvBcoRHB5zP-PDT0w")
+    client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.G5nO_b.SpzS5YYO5cHeMK2yHB_X4WKvQnttsdifAxG2SU")
