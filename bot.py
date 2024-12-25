@@ -5,9 +5,13 @@ import atlas
 import random
 from discord import app_commands
 from discord.ext import commands
+from dotenv import load_dotenv
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
 
 # bot = commands.Bot(command_prefix='^', intents=intents)
 
@@ -19,6 +23,7 @@ intents.message_content = True
 
 
 # global variables
+game_instances = {}
 client = discord.Client(intents=intents)
 games_active = []
 tree = discord.app_commands.CommandTree(client)
@@ -66,20 +71,29 @@ async def on_message(message):
         game_id = random.randint(0, 9999999)
         while game_id in games_active:
             game_id = random.randint(0, 9999999)
-        locals()['p'+str(game_id)] = atlas.PlayWithBot(channel, client, player)
+        # locals()['p'+str(game_id)] = atlas.PlayWithBot(channel, client, player)
+        game_instances['p'+str(game_id)] = atlas.PlayWithBot(channel, client, player)
         games_active.append(game_id)
+
+        # Debug prints
+        # print(f"game_id: {game_id}")
+        # print('p'+str(game_id))
+        # print(game_instances.keys())
+        # print(game_instances["player"])
+        # print(f"game_instances['p'+str(game_id)]: {game_instances['p'+str(game_id)]}")
+
 
         # run the function
         try:
             print("game started")
-            await locals()['p'+str(game_id)].main()
+            await game_instances['p'+str(game_id)].main()
         except atlas.WinException as exception:
             print(str(exception)+'\n')
-            # print(locals()['p'+str(game_id)].done_places)
+            # print(game_instances['p'+str(game_id)].done_places)
             pass
 
         # destroy the instance
-        del locals()['p'+str(game_id)]
+        del game_instances['p'+str(game_id)]
         games_active.remove(game_id)
 
     # command 3
@@ -105,18 +119,18 @@ async def on_message(message):
             game_id = random.randint(0, 9999999)
             while game_id in games_active:
                 game_id = random.randint(0, 9999999)
-            locals()['p'+str(game_id)] = atlas.Play(channel, client, players)
+            game_instances['p'+str(game_id)] = atlas.Play(channel, client, players)
             games_active.append(game_id)
 
             try:
                 print("game started")
-                await locals()['p'+str(game_id)].main()
+                await game_instances['p'+str(game_id)].main()
             except atlas.WinException as exception:
                 print(str(exception)+"\n")
                 # print(locals()['p'+str(game_id)].done_places)
                 pass
             # destroy the instance
-            del locals()['p'+str(game_id)]
+            del game_instances['p'+str(game_id)]
             games_active.remove(game_id)
 
     # command 4
@@ -129,4 +143,4 @@ async def on_message(message):
             await channel.send(server.name+" ❤️")
 
 if __name__ == "__main__":
-    client.run("OTI5NzI4MDg4NjUxMjI3MTQ2.G5nO_b.SpzS5YYO5cHeMK2yHB_X4WKvQnttsdifAxG2SU")
+    client.run(TOKEN)
